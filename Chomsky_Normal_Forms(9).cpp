@@ -1,74 +1,64 @@
+#include <bits/stdc++.h>
 #include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include <sstream>
 
-bool is_valid_sentence(const std::string& sentence) {
-    std::unordered_map<std::string, std::vector<std::string>> grammar = {
-        {"S", {"SUB PRED"}},
-        {"SUB", {"PN", "P"}},
-        {"PRED", {"V", "V N"}},
-        {"PN", {"Sagor", "Selim", "Salma", "Nipu"}},
-        {"P", {"he", "she", "i", "we", "you", "they"}},
-        {"N", {"book", "cow", "dog", "home", "grass", "rice", "mango"}},
-        {"V", {"read", "eat", "take", "run", "write", "program with c++ code"}}
-    };
+using namespace std;
+vector<string> subject = {"Sagor", "Selim", "Salma", "Nipu", "he", "she", "I", "we", "you", "they"};
+vector<string> verb = {"read", "eat", "take", "run", "write"};
+vector<string> noun = {"book", "cow", "dog", "home", "grass", "rice", "mango"};
 
-    std::istringstream iss(sentence);
-    std::string word;
-    std::vector<std::string> words;
-
-    while (iss >> word) {
+int main()
+{
+    freopen("input.txt", "r", stdin);
+    string input;
+    while (getline(cin, input))
+    {
+        // Store the words of the sentence in an vector
+        string word;
+        vector<string> words;
+        for (char c : input)
+        {
+            if (c != ' ')
+            {
+                word += c;
+            }
+            else
+            {
+                words.push_back(word);
+                word = "";
+            }
+        }
+        // Push the last word
         words.push_back(word);
+
+        bool isValid = true;
+
+        // Check if the sentence has more than 3 or less than 2 words
+        if (words.size() > 3 || words.size() < 2)
+        {
+            isValid = false;
+        }
+        // Check if the words are in proper sequence;
+        else
+        {
+            if (find(subject.begin(), subject.end(), words[0]) == subject.end())
+                isValid = false;
+            if (find(verb.begin(), verb.end(), words[1]) == verb.end())
+                isValid = false;
+            if (words.size() == 3)
+            {
+                if (find(noun.begin(), noun.end(), words[2]) == noun.end())
+                    isValid = false;
+            }
+        }
+
+        if (isValid)
+            cout << input << " : Valid\n";
+        else
+            cout << input << " : Invalid\n";
     }
-
-    std::vector<std::string> stack = {"S"};
-
-    for (const std::string& word : words) {
-        if (stack.empty()) {
-            return false;
-        }
-
-        std::string top = stack.back();
-        stack.pop_back();
-
-        if (grammar.count(top) == 0) {
-            return false;
-        }
-
-        const std::vector<std::string>& expansions = grammar[top];
-        if (std::find(expansions.begin(), expansions.end(), word) == expansions.end()) {
-            return false;
-        }
-
-        stack.insert(stack.end(), expansions.rbegin(), expansions.rend());
-    }
-
-    return stack.empty();
-}
-
-int main() {
-    std::vector<std::string> sentences = {
-        "Sagor read",
-        "Nipu take book",
-        "Selim eat book",
-        "we write program with c++ code",
-        "i run home",
-        "Salma run cow",
-        "he take mango",
-        "they run rice",
-        "we take dog",
-        "you read grass"
-    };
-
-    for (const std::string& sentence : sentences) {
-        if (is_valid_sentence(sentence)) {
-            std::cout << "Valid: " << sentence << std::endl;
-        } else {
-            std::cout << "Invalid: " << sentence << std::endl;
-        }
-    }
-
     return 0;
 }
